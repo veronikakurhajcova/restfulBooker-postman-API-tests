@@ -10,7 +10,8 @@ Postman collection for testing the RestfulBooker API [RestfulBooker API](https:/
 
 ### Installation
 - Import the collection into Postman
-- Import the environment file (if it exists)
+- Select RestfulBooker_Collection.json
+✅ All variables are already set in the Collection Variables!**
 - Set the global variable restHelpers (see below)
 
 ### Execution
