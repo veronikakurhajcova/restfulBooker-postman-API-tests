@@ -217,3 +217,92 @@ If this project helped you, give it a ⭐ on GitHub!
 ---
 
 **Last updated:** December 2025
+
+
+# 🐛 Bugs Found in RestfulBooker API
+
+---
+
+## 📊 Summary
+
+| Bug ID | Title | Severity | Type |
+|--------|-------|----------|------|
+| BUG-001 | Invalid Date Range Accepted | 🟡 Medium | Validation |
+| BUG-002 | XSS Payload Not Sanitized | 🔴 **High** | Security |
+| BUG-003 | Missing Input Length Validation | 🟡 Medium | Security |
+| BUG-004 | Negative Price Accepted | 🟢 Low | Business Logic |
+
+**Total issues:** 4 | **Critical:** 1
+
+---
+
+## BUG-001: Invalid Date Range Accepted
+
+**Severity:** 🟡 Medium | **Endpoint:** `POST /booking`
+
+### Issue
+API accepts bookings where checkout date is earlier than checkin date (e.g., checkin: 2025-12-10, checkout: 2025-12-05), violating basic business logic.
+
+### Impact
+Creates invalid bookings, data corruption, customer confusion.
+
+### Recommendation
+Implement server-side validation to ensure checkout date is always after checkin date before creating bookings.
+
+---
+
+## BUG-002: XSS Payload Not Sanitized ⚠️
+
+**Severity:** 🔴 **High** | **Endpoint:** `POST /booking` | **OWASP:** A03:2021
+
+### Issue
+API stores and returns XSS payloads like `<script>alert('XSS')</script>` without sanitization or escaping, enabling Cross-Site Scripting attacks.
+
+### Impact
+Critical security vulnerability that could allow attackers to steal session tokens, redirect users, or capture sensitive data.
+
+### Recommendation
+Implement input sanitization on server-side and escape all HTML special characters before storage. Use Content Security Policy headers and validate inputs against whitelist.
+
+---
+
+## BUG-003: Missing Input Length Validation
+
+**Severity:** 🟡 Medium | **Endpoint:** `POST /booking`
+
+### Issue
+API accepts extremely long strings (10,000+ characters) without validation, leading to potential DoS attacks or database performance issues.
+
+### Impact
+Application instability, excessive storage consumption, and potential denial of service vulnerability.
+
+### Recommendation
+Implement maximum length validation for all string fields (e.g., firstname: 100 chars, lastname: 100 chars) and return clear error messages for validation failures.
+
+---
+
+## BUG-004: Negative Price Accepted
+
+**Severity:** 🟢 Low | **Endpoint:** `POST /booking`
+
+### Issue
+API inconsistently accepts negative values for totalprice field (e.g., -500), which violates financial data integrity.
+
+### Impact
+Financial data corruption and potential exploitation for fraudulent bookings.
+
+### Recommendation
+Add validation to ensure totalprice is always a positive number greater than zero.
+
+---
+
+## 📈 Testing Overview
+
+- **Endpoints tested:** 5
+- **Test cases executed:** 35+
+- **Pass rate:** 89%
+- **Testing approach:** Automated API testing, negative testing, security testing (OWASP Top 10), boundary analysis
+
+---
+
+**Tested by:** Veronika | **Date:** December 2025
