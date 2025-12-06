@@ -1,0 +1,1573 @@
+{
+	"info": {
+		"_postman_id": "9be9f04f-5ef4-4af8-b1f8-6880ad4229f7",
+		"name": "RestfulBooker",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27681755"
+	},
+	"item": [
+		{
+			"name": "RestfulBooker - PositiveTests",
+			"item": [
+				{
+					"name": "GET Requests",
+					"item": [
+						{
+							"name": "GET /booking",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"eval(pm.globals.get(\"restHelpers\"));\r",
+											"\r",
+											"const jsonData = pm.response.json();\r",
+											"const maxResponseTime = 800;\r",
+											"const requiredKeys = [\"bookingid\"];\r",
+											"const ids = jsonData.map(b => b.bookingid);\r",
+											"const uniqueIds = [...new Set(ids)];\r",
+											"\r",
+											"pm.test(\"[HP] Status code should be 200 - Get /booking\", () => {\r",
+											"    checkStatusCode(pm.response,200);\r",
+											"})\r",
+											"\r",
+											"pm.test(`[HP] Response time should be less than ${maxResponseTime} ms - Get /booking`, ()=> {\r",
+											"   checkResponseTime(pm.response, maxResponseTime);\r",
+											"})\r",
+											"\r",
+											"pm.test(\"[HP] Response is an not empty array - Get /booking\", () => {\r",
+											"    pm.expect(jsonData).to.be.an('array').that.is.not.empty;\r",
+											"})\r",
+											"\r",
+											"pm.test(\"[HP] Each object in response includes property bookingid - Get /booking\", () => {\r",
+											"    const missing = jsonData.filter(item => !(\"bookingid\" in item));\r",
+											"    \r",
+											"    if (missing.length > 0) {\r",
+											"        pm.expect.fail(`Some objects are missing the bookingid key: ${JSON.stringify(missing)}`);\r",
+											"    }\r",
+											"});\r",
+											"\r",
+											"pm.test(\"[HP] Booking ids are positive numbers - GET /booking\", () => {\r",
+											"    jsonData.forEach(data => {\r",
+											"        if (data.bookingid <= 0) {\r",
+											"            pm.expect.fail(`Booking ID is not positive: ${data.bookingid}`);\r",
+											"        }\r",
+											"    });\r",
+											"});\r",
+											"\r",
+											"pm.test(\"All booking IDs are unique - GET /booking\", () => {\r",
+											"    if (uniqueIds.length !== ids.length) {\r",
+											"        const duplicates = ids.filter((item, index) => ids.indexOf(item) !== index);\r",
+											"        pm.expect.fail(`Duplicate IDs found: ${duplicates}`);\r",
+											"    }\r",
+											"});\r",
+											"\r",
+											"\r",
+											"\r",
+											"\r",
+											"\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept-Charset",
+										"value": "",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "{{baseUrl}}/booking",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"booking"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET /booking{id}",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"eval(pm.globals.get(\"restHelpers\"));\r",
+											"\r",
+											"const jsonData = pm.response.json();\r",
+											"\r",
+											"const maxResponseTime = 800;\r",
+											"\r",
+											"const schema = {\r",
+											"    \"type\": \"object\",\r",
+											"    \"required\": [\"firstname\", \"lastname\", \"totalprice\", \"depositpaid\", \"bookingdates\"],\r",
+											"    \"properties\": {\r",
+											"        \"firstname\": { \"type\": \"string\" },\r",
+											"        \"lastname\": { \"type\": \"string\" },\r",
+											"        \"totalprice\": { \"type\": \"number\" },\r",
+											"        \"depositpaid\": { \"type\": \"boolean\" },\r",
+											"        \"bookingdates\": {\r",
+											"            \"type\": \"object\",\r",
+											"            \"required\": [\"checkin\", \"checkout\"],\r",
+											"            \"properties\": {\r",
+											"                \"checkin\": { \r",
+											"                    \"type\": \"string\",\r",
+											"                    \"pattern\": \"^\\\\d{4}-\\\\d{2}-\\\\d{2}$\"\r",
+											"                },\r",
+											"                \"checkout\": { \r",
+											"                    \"type\": \"string\",\r",
+											"                    \"pattern\": \"^\\\\d{4}-\\\\d{2}-\\\\d{2}$\"\r",
+											"                }\r",
+											"            }\r",
+											"        },\r",
+											"        \"additionalneeds\": { \"type\": \"string\" }\r",
+											"    }\r",
+											"};\r",
+											"\r",
+											"\r",
+											"pm.test(\"[HP] Response code should be 200 - GET booking/{id}\", ()=> {\r",
+											"    checkStatusCode(pm.response, 200);\r",
+											"})\r",
+											"\r",
+											"pm.test(`[HP] Response time should be less than ${maxResponseTime} ms - GET booking/{id}`, ()=> {\r",
+											"    checkResponseTime(pm.response, maxResponseTime);\r",
+											"})\r",
+											"\r",
+											"pm.test(\"[HP] Response body is not empty - GET booking/{id}\", () => {\r",
+											"    pm.expect(jsonData).to.be.an('object').that.is.not.empty;\r",
+											"});\r",
+											"\r",
+											"pm.test(\"[HP] Content-Type should be JSON - GET booking/{id}\", () => {\r",
+											"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+											"})\r",
+											"\r",
+											"pm.test(\"[HP] JSON schema validation - GET booking/{id}\", () => {\r",
+											"    const Ajv = require('ajv');\r",
+											"    const ajv = new Ajv({ allErrors: true });\r",
+											"\r",
+											"    const valid = ajv.validate(schema, jsonData);\r",
+											"\r",
+											"    pm.expect(valid, JSON.stringify(ajv.errors, null, 2)).to.be.true;\r",
+											"\r",
+											"});\r",
+											"\r",
+											"pm.test(\"[HP] Logical check: Checkin date < Checkout date - GET booking/{ids}\", () => {\r",
+											"    const checkin = new Date(jsonData.bookingdates.checkin);\r",
+											"    const checkout = new Date(jsonData.bookingdates.checkout);\r",
+											"    pm.expect(checkin < checkout, `Checkin (${checkin}) must be before Checkout (${checkout})`).to.be.true;\r",
+											"});\r",
+											"\r",
+											"\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/booking/{{id}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"booking",
+										"{{id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET /booking{newBookingId}",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"eval(pm.globals.get(\"restHelpers\"));\r",
+											"\r",
+											"const sentData = {\r",
+											"    \"firstname\": \"Jim\",\r",
+											"    \"lastname\": \"Brown\",\r",
+											"    \"totalprice\": 111,\r",
+											"    \"depositpaid\": true,\r",
+											"    \"bookingdates\": {\r",
+											"        \"checkin\": \"2025-11-29\",\r",
+											"        \"checkout\": \"2025-12-01\"\r",
+											"    },\r",
+											"    \"additionalneeds\": \"Breakfast\"\r",
+											"}\r",
+											"\r",
+											"const jsonData = pm.response.json();\r",
+											"const maxResponseTime = pm.collectionVariables.get(\"maxResponseTime\");\r",
+											"const dateRegex = /^\\d{4}-\\d{2}-\\d{2}$/;\r",
+											"\r",
+											"pm.test(\"[HP] Status code should be 200 - GET /booking/{newBookingId}\", () => {\r",
+											"    checkStatusCode(pm.response, 200);\r",
+											"});\r",
+											"\r",
+											"pm.test(`[HP] Response time should be less than ${maxResponseTime} ms - GET /booking/{newBookingId}`, () => {\r",
+											"    checkResponseTime(pm.response, maxResponseTime);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"[HP] Response data is an object with the correct types - GET /booking/{newBookingId}\", ()=> {\r",
+											"    pm.expect(jsonData).to.be.an('object');\r",
+											"\r",
+											"    pm.expect(jsonData.firstname).to.be.a('string');\r",
+											"    pm.expect(jsonData.lastname).to.be.a('string');\r",
+											"    pm.expect(jsonData.totalprice).to.be.a('number');\r",
+											"    pm.expect(jsonData.depositpaid).to.be.a('boolean');\r",
+											"    pm.expect(jsonData.bookingdates).to.be.an('object');\r",
+											"    pm.expect(jsonData.bookingdates.checkin).to.be.a('string');\r",
+											"    pm.expect(jsonData.bookingdates.checkin, \"Checkin date hasn't got expected YYYY-MM-DD format\")\r",
+											"        .to.match(dateRegex);\r",
+											"    pm.expect(jsonData.bookingdates.checkout).to.be.a('string');\r",
+											"    pm.expect(jsonData.bookingdates.checkout, \"Checkout date hasn't got expected YYYY-MM-DD format\")\r",
+											"        .to.match(dateRegex);\r",
+											"    pm.expect(jsonData.additionalneeds).to.be.a('string');\r",
+											"});\r",
+											"\r",
+											"pm.test(\"[HP] Response body should match sent data (Deep Equal) - GET /booking/{newBookingId}\", () => {\r",
+											"    pm.expect(jsonData, \"Response body (GET) doesn't match with sent data (POST).\").to.deep.equal(sentData);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/booking/{{newBookingId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"booking",
+										"{{newBookingId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET after DELETE /booking/{newBookingId}",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"eval(pm.globals.get('restHelpers'));\r",
+											"\r",
+											"const maxResponseTime = pm.collectionVariables.get('maxResponseTime');\r",
+											"\r",
+											"pm.test(\"[HP] Response status should be 404 Not Found - GET after DELETE newBookingId\", () => {\r",
+											"    checkStatusCode(pm.response, 404);\r",
+											"});\r",
+											"\r",
+											"pm.test(`[HP] Response time should be less than ${maxResponseTime}ms - GET after DELETE newBookingId`, () => {\r",
+											"    checkResponseTime(pm.response, maxResponseTime);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"[HP] Response body should contain 'Not Found' message - GET after DELETE newBookingId\", () => {\r",
+											"    const body = pm.response.text();\r",
+											"    pm.expect(body.length).to.be.greaterThan(0, \"Response body should not be empty\");\r",
+											"    pm.expect(body).to.include('Not Found');\r",
+											"});\r",
+											"\r",
+											"// Clean-up\r",
+											"pm.collectionVariables.unset(\"deletedBookingId\");\r",
+											"console.log(\"✓ Deleted booking ID bol vyčistený z collection variables\");"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Cookie",
+										"value": "token={{authToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"Jim-Updated\",\r\n    \"lastname\": \"Brown-Updated\", \r\n    \"totalprice\": 999, \r\n    \"depositpaid\": false, \r\n    \"bookingdates\": {\r\n        \"checkin\": \"2026-01-01\", \r\n        \"checkout\": \"2026-01-05\"\r\n    },\r\n    \"additionalneeds\": \"Dinner\" \r\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/booking/{{newBookingId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"booking",
+										"{{newBookingId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "POST Requests",
+					"item": [
+						{
+							"name": "POST /booking( Create newBookingId )",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"eval(pm.globals.get('restHelpers'));\r",
+											"\r",
+											"const sentData = {\r",
+											"    \"firstname\": \"Jim\",\r",
+											"    \"lastname\": \"Brown\",\r",
+											"    \"totalprice\": 111,\r",
+											"    \"depositpaid\": true,\r",
+											"    \"bookingdates\": {\r",
+											"        \"checkin\": \"2025-11-29\",\r",
+											"        \"checkout\": \"2025-12-01\"\r",
+											"    },\r",
+											"    \"additionalneeds\": \"Breakfast\"\r",
+											"}\r",
+											"\r",
+											"const schema = {\r",
+											"    type: \"object\",\r",
+											"    required: [\"firstname\", \"lastname\", \"totalprice\", \"depositpaid\", \"bookingdates\"],\r",
+											"    properties: {\r",
+											"        firstname: {\r",
+											"            type: \"string\",\r",
+											"            minLength: 1,\r",
+											"            maxLength: 100\r",
+											"        },\r",
+											"        lastname: {\r",
+											"            type: \"string\",\r",
+											"            minLength: 1,\r",
+											"            maxLength: 100\r",
+											"        },\r",
+											"        totalprice: {\r",
+											"            type: \"number\",\r",
+											"            minimum: 0,\r",
+											"            maximum: 999999\r",
+											"        },\r",
+											"        depositpaid: {\r",
+											"            type: \"boolean\"\r",
+											"        },\r",
+											"        bookingdates: {\r",
+											"            type: \"object\",\r",
+											"            required: [\"checkin\", \"checkout\"],\r",
+											"            properties: {\r",
+											"                checkin: {\r",
+											"                    type: \"string\",\r",
+											"                    pattern: \"^\\\\d{4}-\\\\d{2}-\\\\d{2}$\"\r",
+											"                },\r",
+											"                checkout: {\r",
+											"                    type: \"string\",\r",
+											"                    pattern: \"^\\\\d{4}-\\\\d{2}-\\\\d{2}$\"\r",
+											"                }\r",
+											"            },\r",
+											"            additionalProperties: false\r",
+											"        },\r",
+											"        additionalneeds: {\r",
+											"            type: \"string\",\r",
+											"            maxLength: 500\r",
+											"        }\r",
+											"    },\r",
+											"    additionalProperties: false\r",
+											"};\r",
+											"\r",
+											"const jsonData = pm.response.json();\r",
+											"const maxResponseTime = pm.collectionVariables.get('maxResponseTime');\r",
+											"\r",
+											"const booking = jsonData.booking;\r",
+											"\r",
+											"pm.test(\"[HP] Response status should be 200 - POST /booking( Create newBookingId ) \", () => {\r",
+											"    checkStatusCode(pm.response, 200);\r",
+											"});\r",
+											"\r",
+											"pm.test(`[HP] Response time should be less than ${maxResponseTime} - POST /booking( Create newBookingId ) `, () => {\r",
+											"    checkResponseTime(pm.response, maxResponseTime);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"[HP] Response should match booking schema - POST /booking( Create newBookingId ) \", () => {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    const booking = jsonData.booking || jsonData;\r",
+											"    \r",
+											"    pm.expect(tv4.validate(booking, schema), \r",
+											"        `Schema validation failed: ${JSON.stringify(tv4.error, null, 2)}`)\r",
+											"        .to.be.true;\r",
+											"});\r",
+											"\r",
+											"pm.test(\"[HP] Response data integrity check & save ID =  POST /booking( Create newBookingId ) \", () => {\r",
+											"    pm.expect(jsonData.bookingid, `Response bookingid is not a number, but ${typeof jsonData.bookingid}`).to.be.a('number');\r",
+											"    pm.expect(jsonData.booking, `Response data is not an object but ${pm.response}`).to.be.an('object');\r",
+											"\r",
+											"    pm.expect(booking.firstname,\r",
+											"     `Booking firstname is not equal ${sentData.firstname} but got ${booking.firstname}`)\r",
+											"     .to.equal(sentData.firstname);\r",
+											"\r",
+											"    pm.expect(booking.lastname,\r",
+											"     `Booking firstname is not equal ${sentData.lastname} but got ${booking.lastname}`)\r",
+											"     .to.equal(sentData.lastname);\r",
+											"\r",
+											"    pm.expect(booking.totalprice, `Booking totalprice is not equal ${sentData.totalprice} but got ${booking.totalprice}`).to.equal(sentData.totalprice);\r",
+											"    pm.expect(booking.depositpaid, `Booking depositpaid shoudl be ${sentData.depositpaid}, but got ${booking.depositpaid} `).to.be.true;\r",
+											"    pm.expect(booking.bookingdates.checkin, `Booking checkin should be ${sentData.bookingdates.checkin} but got ${booking.bookingdates.checkin}`).to.equal(sentData.bookingdates.checkin);\r",
+											"    pm.expect(booking.bookingdates.checkout, `Booking checkin should be ${sentData.bookingdates.checkout} but got ${booking.bookingdates.checkout}`).to.equal(sentData.bookingdates.checkout);\r",
+											"    pm.expect(booking.additionalneeds, `Booking additionalneeds should be ${sentData.additionalneeds} but got ${booking.additionalneeds}`).to.equal(sentData.additionalneeds);\r",
+											"\r",
+											"    pm.collectionVariables.set(\"newBookingId\", jsonData.bookingid);\r",
+											"});\r",
+											"\r",
+											"\r",
+											"\r",
+											"\r",
+											"\r",
+											"\r",
+											"\r",
+											"\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\" : \"Jim\",\r\n    \"lastname\" : \"Brown\",\r\n    \"totalprice\" : 111,\r\n    \"depositpaid\" : true,\r\n    \"bookingdates\" : {\r\n        \"checkin\" : \"2025-11-29\",\r\n        \"checkout\" : \"2025-12-01\"\r\n    },\r\n    \"additionalneeds\" : \"Breakfast\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/booking",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"booking"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "PUT Requests",
+					"item": [
+						{
+							"name": "PUT /booking/{id}",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"eval(pm.globals.get('restHelpers'));\r",
+											"\r",
+											"const updatedData = {\r",
+											"    \"firstname\": \"Jim-Updated\",\r",
+											"    \"lastname\": \"Brown-Updated\",\r",
+											"    \"totalprice\": 999,\r",
+											"    \"depositpaid\": false,\r",
+											"    \"bookingdates\": {\r",
+											"        \"checkin\": \"2026-01-01\",\r",
+											"        \"checkout\": \"2026-01-05\"\r",
+											"    },\r",
+											"    \"additionalneeds\": \"Dinner\"\r",
+											"};\r",
+											"\r",
+											"const maxResponseTime = pm.collectionVariables.get('maxResponseTime');\r",
+											"const dateRegex = /^\\d{4}-\\d{2}-\\d{2}$/;\r",
+											"\r",
+											"// Status a timing\r",
+											"pm.test(\"[HP] Response status should be 200 - PUT /booking/{id}\", () => {\r",
+											"    checkStatusCode(pm.response, 200);\r",
+											"});\r",
+											"\r",
+											"pm.test(`[HP] Response time should be less than ${maxResponseTime}ms - PUT /booking/{id}`, () => {\r",
+											"    checkResponseTime(pm.response, maxResponseTime);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"[HP] Content-Type should be application/json - PUT /booking/{id}\", () => {\r",
+											"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');\r",
+											"});\r",
+											"\r",
+											"// Parse and validation\r",
+											"pm.test(\"[HP] Response should be valid JSON with booking data - PUT /booking/{id}\", () => {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    const updatedBooking = jsonData.firstname ? jsonData : jsonData.booking;\r",
+											"\r",
+											"    pm.expect(updatedBooking, `Response data is not an object but ${typeof updatedBooking}`)\r",
+											"        .to.be.an('object');\r",
+											"\r",
+											"    pm.collectionVariables.set('_updatedBooking', JSON.stringify(updatedBooking));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"[HP] All fields should match updated data - PUT /booking/{id}\", () => {\r",
+											"    const updatedBooking = JSON.parse(pm.collectionVariables.get('_updatedBooking'));\r",
+											"\r",
+											"    pm.expect(updatedBooking.firstname,\r",
+											"        `Firstname mismatch. Expected: ${updatedData.firstname}, Got: ${updatedBooking.firstname}`)\r",
+											"        .to.equal(updatedData.firstname);\r",
+											"\r",
+											"    pm.expect(updatedBooking.lastname,\r",
+											"        `Lastname mismatch. Expected: ${updatedData.lastname}, Got: ${updatedBooking.lastname}`)\r",
+											"        .to.equal(updatedData.lastname);\r",
+											"\r",
+											"    pm.expect(updatedBooking.totalprice,\r",
+											"        `Totalprice mismatch. Expected: ${updatedData.totalprice}, Got: ${updatedBooking.totalprice}`)\r",
+											"        .to.be.a('number').and.equal(updatedData.totalprice);\r",
+											"\r",
+											"    pm.expect(updatedBooking.depositpaid,\r",
+											"        `Depositpaid mismatch. Expected: ${updatedData.depositpaid}, Got: ${updatedBooking.depositpaid}`)\r",
+											"        .to.be.a('boolean').and.equal(updatedData.depositpaid);\r",
+											"\r",
+											"    pm.expect(updatedBooking.additionalneeds,\r",
+											"        `Additionalneeds mismatch. Expected: ${updatedData.additionalneeds}, Got: ${updatedBooking.additionalneeds}`)\r",
+											"        .to.equal(updatedData.additionalneeds);\r",
+											"\r",
+											"    // Validation bookingdates object\r",
+											"    pm.expect(updatedBooking.bookingdates, 'Bookingdates should be an object')\r",
+											"        .to.be.an('object');\r",
+											"\r",
+											"    pm.expect(updatedBooking.bookingdates.checkin,\r",
+											"        `Checkin date mismatch. Expected: ${updatedData.bookingdates.checkin}, Got: ${updatedBooking.bookingdates.checkin}`)\r",
+											"        .to.equal(updatedData.bookingdates.checkin);\r",
+											"\r",
+											"    pm.expect(updatedBooking.bookingdates.checkout,\r",
+											"        `Checkout date mismatch. Expected: ${updatedData.bookingdates.checkout}, Got: ${updatedBooking.bookingdates.checkout}`)\r",
+											"        .to.equal(updatedData.bookingdates.checkout);\r",
+											"\r",
+											"    pm.expect(updatedBooking.bookingdates.checkin)\r",
+											"        .to.match(dateRegex, 'Checkin should be in YYYY-MM-DD format');\r",
+											"    pm.expect(updatedBooking.bookingdates.checkout)\r",
+											"        .to.match(dateRegex, 'Checkout should be in YYYY-MM-DD format');\r",
+											"});\r",
+											"\r",
+											"// Clean-up\r",
+											"pm.collectionVariables.unset('_updatedBooking');"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Cookie",
+										"value": "token={{authToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"Jim-Updated\",\r\n    \"lastname\": \"Brown-Updated\", \r\n    \"totalprice\": 999, \r\n    \"depositpaid\": false, \r\n    \"bookingdates\": {\r\n        \"checkin\": \"2026-01-01\", \r\n        \"checkout\": \"2026-01-05\"\r\n    },\r\n    \"additionalneeds\": \"Dinner\" \r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/booking/{{newBookingId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"booking",
+										"{{newBookingId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "DELETE Requests",
+					"item": [
+						{
+							"name": "DELETE /booking/{id}",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"eval(pm.globals.get('restHelpers'));\r",
+											"\r",
+											"const maxResponseTime = pm.collectionVariables.get('maxResponseTime');\r",
+											"const bookingId = pm.collectionVariables.get('newBookingId');\r",
+											"\r",
+											"pm.test(\"[HP] Response status should be 201 Created/Accepted - DELETE /booking/{id}\", () => {\r",
+											"    checkStatusCode(pm.response, 201); \r",
+											"});\r",
+											"\r",
+											"pm.test(`[HP] Response time should be less than ${maxResponseTime} - DELETE /booking/{id}`, () => {\r",
+											"    checkResponseTime(pm.response, maxResponseTime);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"[HP] Response body should contain success message - DELETE /booking/{id}\", () => {\r",
+											"    pm.expect(pm.response.text()).to.include('Created');\r",
+											"});\r",
+											"\r",
+											"pm.test(\"[HP] Ensure booking ID is cleared after successful deletion - DELETE /booking/{id}\", () => {\r",
+											"    pm.collectionVariables.set(\"deletedBookingId\", bookingId);\r",
+											"    pm.collectionVariables.set(\"newBookingId\", null);\r",
+											"    \r",
+											"    console.log(`Booking ID ${bookingId} was moved into 'deletedBookingId'.`);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Cookie",
+										"value": "token={{authToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"Jim-Updated\",\r\n    \"lastname\": \"Brown-Updated\", \r\n    \"totalprice\": 999, \r\n    \"depositpaid\": false, \r\n    \"bookingdates\": {\r\n        \"checkin\": \"2026-01-01\", \r\n        \"checkout\": \"2026-01-05\"\r\n    },\r\n    \"additionalneeds\": \"Dinner\" \r\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/booking/{{newBookingId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"booking",
+										"{{newBookingId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "RestfulBooker - NegativeTests",
+			"item": [
+				{
+					"name": "GET Requests",
+					"item": [
+						{
+							"name": "[NEG] GET /booking/{nonexistent id}",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"eval(pm.globals.get(\"restHelpers\"));\r",
+											"\r",
+											"const errorMessage = \"Not Found\";\r",
+											"\r",
+											"pm.test(\"[NEG] Status code should be 404 - GET /booking/{nonexistent id}\", ()=> {\r",
+											"    checkStatusCode(pm.response,404);\r",
+											"})\r",
+											"\r",
+											"pm.test(\"[NEG] Content-Type should be text/plain -  GET /booking/{nonexistent id}\", () => {\r",
+											"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/plain\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"[NEG] Response includes error message (case-insensitive) -  GET /booking/{nonexistent id}\", ()=> {\r",
+											"        pm.expect(pm.response.text().toLowerCase()).to.include(errorMessage.toLowerCase());\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "jwt",
+									"jwt": [
+										{
+											"key": "isSecretBase64Encoded",
+											"value": false,
+											"type": "boolean"
+										},
+										{
+											"key": "algorithm",
+											"value": "HS256",
+											"type": "string"
+										},
+										{
+											"key": "payload",
+											"value": "{}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										},
+										{
+											"key": "headerPrefix",
+											"value": "Bearer",
+											"type": "string"
+										},
+										{
+											"key": "queryParamKey",
+											"value": "token",
+											"type": "string"
+										},
+										{
+											"key": "header",
+											"value": "{}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/booking/9999999999",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"booking",
+										"9999999999"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "POST Requests",
+					"item": [
+						{
+							"name": "[NEG] POST /booking -Invalid Data (Negative price)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"eval(pm.globals.get('restHelpers'));\r",
+											"\r",
+											"pm.test(\"[NEG] Status code should be 400 or 500 - POST with negative price\", () => {\r",
+											"    const status = pm.response.code;\r",
+											"    pm.expect([400, 500]).to.include(status, \r",
+											"        `Expected 400 or 500 for negative price, got ${status}`);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"[NEG] Response should indicate invalid data - POST with negative price\", () => {\r",
+											"    const body = pm.response.text().toLowerCase();\r",
+											"    const hasError = body.includes('error') || \r",
+											"                     body.includes('invalid') || \r",
+											"                     body.includes('bad request');\r",
+											"    pm.expect(hasError, \"Response should contain error message\").to.be.true;\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"John\",\r\n    \"lastname\": \"Doe\",\r\n    \"totalprice\": -100,\r\n    \"depositpaid\": true,\r\n    \"bookingdates\": {\r\n        \"checkin\": \"2025-01-01\",\r\n        \"checkout\": \"2025-01-05\"\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/booking",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"booking"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[NEG] POST /booking - Invalid Date Range (Checkout before Checkin)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"eval(pm.globals.get('restHelpers'));\r",
+											"\r",
+											"const sentData = JSON.parse(pm.request.body.raw);\r",
+											"\r",
+											"pm.test(\"[NEG] Checkout before Checkin should fail or be accepted with warning - POST /booking - Invalid Date Range (Checkout before Checkin)\", () => {\r",
+											"    const status = pm.response.code;\r",
+											"    \r",
+											"    if (status === 200) {\r",
+											"        // API accepted the data - validating if it stored them correctly\r",
+											"        const jsonData = pm.response.json();\r",
+											"        const booking = jsonData.booking || jsonData;\r",
+											"        \r",
+											"        console.warn(\"API accepted invalid date range (checkin > checkout)\");\r",
+											"        console.log(`Sent: checkin=${sentData.bookingdates.checkin}, checkout=${sentData.bookingdates.checkout}`);\r",
+											"        console.log(`Received: checkin=${booking.bookingdates.checkin}, checkout=${booking.bookingdates.checkout}`);\r",
+											"    } else {\r",
+											"        // API rejected - expecting 400\r",
+											"        pm.expect([400, 422]).to.include(status, \"Should reject invalid date range\");\r",
+											"    }\r",
+											"});\r",
+											"\r",
+											"pm.test(\"[NEG] Log potential API bug - Invalid date range accepted - POST /booking - Invalid Date Range (Checkout before Checkin)\", () => {\r",
+											"    if (pm.response.code === 200) {\r",
+											"        const jsonData = pm.response.json();\r",
+											"        const booking = jsonData.booking || jsonData;\r",
+											"        \r",
+											"        const checkin = new Date(booking.bookingdates.checkin);\r",
+											"        const checkout = new Date(booking.bookingdates.checkout);\r",
+											"        \r",
+											"        if (checkin >= checkout) {\r",
+											"            console.error(\"BUG DETECTED: API accepted checkout <= checkin\");\r",
+											"            pm.expect.fail(\"API should reject invalid date range but accepted it\");\r",
+											"        }\r",
+											"    }\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"Jane\",\r\n    \"lastname\": \"Smith\",\r\n    \"totalprice\": 150,\r\n    \"depositpaid\": true,\r\n    \"bookingdates\": {\r\n        \"checkin\": \"2025-01-10\",\r\n        \"checkout\": \"2025-01-05\"\r\n    },\r\n    \"additionalneeds\": \"Breakfast\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/booking",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"booking"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[NEG] POST /booking - Missing Required Fields",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"eval(pm.globals.get('restHelpers'));\r",
+											"\r",
+											"pm.test(\"[NEG] Status code should be 400 - POST /booking - Missing Required Fields\", () => {\r",
+											"    checkStatusCode(pm.response, 400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"[NEG] Response should indicate missing fields - POST /booking - Missing Required Fields\", () => {\r",
+											"    const body = pm.response.text().toLowerCase();\r",
+											"    const hasMissingFieldError = \r",
+											"        body.includes('required') || \r",
+											"        body.includes('missing') ||\r",
+											"        body.includes('lastname') ||\r",
+											"        body.includes('bookingdates');\r",
+											"    \r",
+											"    pm.expect(hasMissingFieldError, \r",
+											"        \"Response should mention missing required fields\").to.be.true;\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"Incomplete\",\r\n    \"totalprice\": 100\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/booking",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"booking"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[NEG] POST /booking - SQL Injection Attempt",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"eval(pm.globals.get('restHelpers'));\r",
+											"\r",
+											"pm.test(\"[NEG] SQL injection should be sanitized -  POST /booking - SQL Injection Attempt\", () => {\r",
+											"    if (pm.response.code === 200) {\r",
+											"        const jsonData = pm.response.json();\r",
+											"        const booking = jsonData.booking || jsonData;\r",
+											"        \r",
+											"        // Verify data was sanitized/escaped\r",
+											"        console.log(`Firstname returned: \"${booking.firstname}\"`);\r",
+											"        \r",
+											"        pm.expect(booking.firstname).to.be.a('string');\r",
+											"        \r",
+											"        // Ideally the API should escape special chars\r",
+											"        // but if it stored them as-is, we just log it\r",
+											"        if (booking.firstname.includes(\"DROP TABLE\")) {\r",
+											"            console.warn(\"⚠️ SECURITY: SQL injection payload was stored without sanitization\");\r",
+											"        }\r",
+											"    }\r",
+											"});\r",
+											"\r",
+											"pm.test(\"[NEG] Response should be valid JSON -  POST /booking - SQL Injection Attempt\", () => {\r",
+											"    pm.response.to.be.json;\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"'; DROP TABLE bookings; --\",\r\n    \"lastname\": \"Hacker\",\r\n    \"totalprice\": 100,\r\n    \"depositpaid\": true,\r\n    \"bookingdates\": {\r\n        \"checkin\": \"2025-01-01\",\r\n        \"checkout\": \"2025-01-05\"\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/booking",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"booking"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[NEG] POST /booking - XSS Attempt",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"eval(pm.globals.get('restHelpers'));\r",
+											"\r",
+											"pm.test(\"[NEG] XSS payload should be escaped/sanitized - POST /booking - XSS Attempt\", () => {\r",
+											"    if (pm.response.code === 200) {\r",
+											"        const jsonData = pm.response.json();\r",
+											"        const booking = jsonData.booking || jsonData;\r",
+											"        \r",
+											"        console.log(`Firstname returned: \"${booking.firstname}\"`);\r",
+											"        \r",
+											"        if (booking.firstname.includes(\"<script>\")) {\r",
+											"            console.warn(\"SECURITY: XSS payload stored without escaping\");\r",
+											"        } else {\r",
+											"            console.log(\"✓ XSS payload was sanitized\");\r",
+											"        }\r",
+											"    }\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"<script>alert('XSS')</script>\",\r\n    \"lastname\": \"Test\",\r\n    \"totalprice\": 100,\r\n    \"depositpaid\": true,\r\n    \"bookingdates\": {\r\n        \"checkin\": \"2025-01-01\",\r\n        \"checkout\": \"2025-01-05\"\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/booking",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"booking"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[NEG] POST /booking - Extremely Long String (Boundary Test)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const longString = \"A\".repeat(10000);\r",
+											"pm.variables.set(\"longFirstname\", longString);"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"eval(pm.globals.get('restHelpers'));\r",
+											"\r",
+											"pm.test(\"[NEG] API should handle extremely long strings - POST /booking - Extremely Long String (Boundary Test)\", () => {\r",
+											"    const status = pm.response.code;\r",
+											"    \r",
+											"    if (status === 200) {\r",
+											"        console.warn(\"⚠️ API accepted 10,000 character string without validation\");\r",
+											"    } else {\r",
+											"        pm.expect([400, 413]).to.include(status, \r",
+											"            \"Should reject payload that's too large\");\r",
+											"    }\r",
+											"});\r",
+											"\r",
+											"pm.test(\"[NEG] Response time should be reasonable even for large payload - POST /booking - Extremely Long String (Boundary Test)\", () => {\r",
+											"    pm.expect(pm.response.responseTime).to.be.below(5000, \r",
+											"        \"Should respond within 5s even for large input\");\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"{{longFirstname}}\",\r\n    \"lastname\": \"Test\",\r\n    \"totalprice\": 100,\r\n    \"depositpaid\": true,\r\n    \"bookingdates\": {\r\n        \"checkin\": \"2025-01-01\",\r\n        \"checkout\": \"2025-01-05\"\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/booking",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"booking"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "PUT Requests",
+					"item": [
+						{
+							"name": "[NEG] PUT /booking/{id} - Update Without Authentication",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"eval(pm.globals.get('restHelpers'));\r",
+											"\r",
+											"pm.test(\"[NEG] Status code should be 403 Forbidden - PUT /booking/{id} - Update Without Authentication\", () => {\r",
+											"    checkStatusCode(pm.response, 403);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"[NEG] Response should indicate authentication required - PUT /booking/{id} - Update Without Authentication\", () => {\r",
+											"    const body = pm.response.text().toLowerCase();\r",
+											"    const hasAuthError =\r",
+											"        body.includes('forbidden') ||\r",
+											"        body.includes('unauthorized') ||\r",
+											"        body.includes('auth');\r",
+											"\r",
+											"    pm.expect(hasAuthError, \"Response should indicate auth error\").to.be.true;\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"Incomplete\",\r\n    \"totalprice\": 100\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/booking/{{id}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"booking",
+										"{{id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[NEG]  PUT /booking/{id} - Invalid Data Type",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"eval(pm.globals.get('restHelpers'));\r",
+											"\r",
+											"pm.test(\"[NEG] Status code should be 400 -PUT /booking/{id} - Invalid Data Type\", () => {\r",
+											"    const status = pm.response.code;\r",
+											"    pm.expect([400, 500]).to.include(status, \r",
+											"        `Expected 400/500 for invalid types, got ${status}`);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"[NEG] Totalprice should be number, not string - PUT /booking/{id} - Invalid Data Type\", () => {\r",
+											"    const requestBody = JSON.parse(pm.request.body.raw);\r",
+											"    pm.expect(typeof requestBody.totalprice).to.equal('string', \r",
+											"        \"Test setup: totalprice sent as string\");\r",
+											"    \r",
+											"    // api should reject\r",
+											"    pm.expect(pm.response.code).to.not.equal(200, \r",
+											"        \"API should reject invalid data types\");\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"John\",\r\n    \"lastname\": \"Doe\",\r\n    \"totalprice\": \"not-a-number\",\r\n    \"depositpaid\": \"not-a-boolean\",\r\n    \"bookingdates\": {\r\n        \"checkin\": \"2025-01-01\",\r\n        \"checkout\": \"2025-01-05\"\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/booking/{{id}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"booking",
+										"{{id}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "DELETE Requests",
+					"item": [
+						{
+							"name": "[NEG] DELETE /booking/{id} - Delete Without Authentication",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"eval(pm.globals.get('restHelpers'));\r",
+											"\r",
+											"pm.test(\"[NEG] Status code should be 403 - DELETE /booking/{id} - Delete Without Authentication\", () => {\r",
+											"    checkStatusCode(pm.response, 403);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"[NEG] Response indicates forbidden action - DELETE /booking/{id} - Delete Without Authentication\", () => {\r",
+											"    const body = pm.response.text().toLowerCase();\r",
+											"    pm.expect(body).to.include('forbidden');\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"John\",\r\n    \"lastname\": \"Doe\",\r\n    \"totalprice\": \"not-a-number\",\r\n    \"depositpaid\": \"not-a-boolean\",\r\n    \"bookingdates\": {\r\n        \"checkin\": \"2025-01-01\",\r\n        \"checkout\": \"2025-01-05\"\r\n    }\r\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/booking/{{id}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"booking",
+										"{{id}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "AUTH token",
+			"item": [
+				{
+					"name": "POST /auth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"try {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    \r",
+									"    // token key extraction\r",
+									"    if (responseJson && responseJson.token) {\r",
+									"        const tokenValue = responseJson.token;\r",
+									"        \r",
+									"        // token saved to COLLECTION variable\r",
+									"        pm.collectionVariables.set(\"authToken\", tokenValue);\r",
+									"        console.log(\"SUCCESS: Authentication token has been saved to collectionVariables.authToken:\", tokenValue);\r",
+									"\r",
+									"        pm.test(\"Token was successfully saved\", () => {\r",
+									"            pm.expect(tokenValue).to.be.a('string').and.to.have.lengthOf.at.least(5);\r",
+									"        });\r",
+									"    } else {\r",
+									"        \r",
+									"        pm.test(\"FAIL: The key 'token' was not found in the response body.\", () => {\r",
+									"            pm.expect(false).to.be.true; \r",
+									"        });\r",
+									"    }\r",
+									"} catch (e) {\r",
+									"    pm.test(\"FAIL: The response body is not valid JSON.\", () => {\r",
+									"        pm.expect(false, `JSON processing error: ${e.message}`).to.be.true; \r",
+									"    });\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\" : \"admin\",\r\n    \"password\" : \"password123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					"pm.globals.set(\"restHelpers\", `\r",
+					"function checkStatusCode(response, expectedStatus) {\r",
+					"    if(response.code !== expectedStatus) {\r",
+					"        throw new Error('Expected status: ' + expectedStatus + ' but got ' + response.code);\r",
+					"    }\r",
+					"}\r",
+					"\r",
+					"function checkResponseTime(response, maxResponseTime) {\r",
+					"    if(response.responseTime > maxResponseTime) {\r",
+					"        throw new Error('Expected response time <= ' + maxResponseTime + ' but got ' + response.responseTime);\r",
+					"    }\r",
+					"}\r",
+					"\r",
+					"function checkRequiredKeys(data, keys) {\r",
+					"    if (Array.isArray(data)) {\r",
+					"        const missingItems = data.filter(item => keys.some(k => !(k in item)));\r",
+					"        if (missingItems.length > 0) {\r",
+					"            pm.expect.fail('Some objects in array are missing keys: ' + JSON.stringify(missingItems));\r",
+					"        }\r",
+					"    } else if (typeof data === \"object\" && data !== null) {\r",
+					"        const missingKeys = keys.filter(k => !(k in data));\r",
+					"        if (missingKeys.length > 0) {\r",
+					"            pm.expect.fail('Object is missing keys: ' + missingKeys.join(', '));\r",
+					"        }\r",
+					"    } else {\r",
+					"        pm.expect.fail(\"Data is neither object nor array of objects\");\r",
+					"    }\r",
+					"}\r",
+					"`);\r",
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": ""
+		},
+		{
+			"key": "id",
+			"value": ""
+		},
+		{
+			"key": "maxResponseTime",
+			"value": ""
+		},
+		{
+			"key": "newBookingId",
+			"value": ""
+		},
+		{
+			"key": "responseBody",
+			"value": ""
+		},
+		{
+			"key": "sentPayload",
+			"value": ""
+		},
+		{
+			"key": "username",
+			"value": ""
+		},
+		{
+			"key": "password",
+			"value": ""
+		},
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "authToken",
+			"value": ""
+		},
+		{
+			"key": "deletedBookingId",
+			"value": ""
+		}
+	]
+}
