@@ -1,6 +1,6 @@
 # RestfulBooker API Test Collection
 
-## 📋 Descirption
+## 📋 Description
 Postman collection for testing the RestfulBooker API [RestfulBooker API](https://restful-booker.herokuapp.com/)
 
 ## 🚀 How to run
