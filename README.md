@@ -232,7 +232,7 @@ If this project helped you, give it a ⭐ on GitHub!
 | BUG-003 | Missing Input Length Validation | 🟡 Medium | Security |
 | BUG-004 | Negative Price Accepted | 🟢 Low | Business Logic |
 
-**Total issues:** 4 | **Critical:** 1
+**Total issues:** 4 | **High:** 1
 
 ---
 
