@@ -1417,7 +1417,7 @@
 									"        \r",
 									"        // token saved to COLLECTION variable\r",
 									"        pm.collectionVariables.set(\"authToken\", tokenValue);\r",
-									"        console.log(\"SUCCESS: Authentication token has been saved to collectionVariables.authToken:\", tokenValue);\r",
+									"        console.log(\"SUCCESS: Authentication token has been saved to collectionVariables.authToken:\"\r",
 									"\r",
 									"        pm.test(\"Token was successfully saved\", () => {\r",
 									"            pm.expect(tokenValue).to.be.a('string').and.to.have.lengthOf.at.least(5);\r",
